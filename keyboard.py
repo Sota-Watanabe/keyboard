@@ -7,8 +7,10 @@ import json
 from mido import MidiFile, Message
 from pygame.locals import *
 
+DEFAULT_KEY = 48
 CFILE = "conversion-table.json"
 outport = mido.open_output("Piaggero:Piaggero MIDI 1 24:0")
+print(outport)
 table = None
 
 def main():    
@@ -32,16 +34,21 @@ def main():
                     pygame.quit()
                     sys.exit()
                 else:
-                    send_midi(pygame.key.name(event.key))
+                    octave = 0
+                    if event.mod & pygame.KMOD_LSHIFT:
+                        octave = octave - 1
+                    if event.mod & pygame.KMOD_RSHIFT:
+                        octave = octave + 1
+                    send_midi(pygame.key.name(event.key), octave)
             pygame.display.update()
 
 
-def send_midi(key):
-    num = key2num(key)
+def send_midi(key, octave):
+    num = key2num(key.upper())
     # num = random.randrange(10, 60)
     if num == None:
         return
-    num = num + 48 #change after
+    num = num + DEFAULT_KEY + 12 * octave
     msg = Message('note_on', note=num, velocity=90)
     outport.send(msg)
     print(msg)
