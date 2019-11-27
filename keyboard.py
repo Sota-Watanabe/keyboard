@@ -51,20 +51,26 @@ def main():
                         if event.mod & pygame.KMOD_SHIFT:
                             key = key.upper()
                     print(octave)
-                    send_midi(key, octave)
+                    send_midi(key, octave, "down")
+            elif event.type == KEYUP:
+                send_midi(key, octave, "up")
             pygame.display.update()
 
 
-def send_midi(key, octave):
+def send_midi(key, octave, move):
     num = key2num(key)
     # num = random.randrange(10, 60)
     if num == None:
         return
     num = num + DEFAULT_KEY + 12 * octave
-    msg = Message('note_on', note=num, velocity=90)
-    outport.send(msg)
-    print(msg)
-
+    if move == "down":
+        msg = Message('note_on', note=num, velocity=90)
+        outport.send(msg)
+    elif move=="up" and mode == 0:
+        msg = Message('note_off', note=num, velocity=0)
+        outport.send(msg)
+        msg = Message('note_on', note=num, velocity=0)
+        outport.send(msg)
 
 
 def key2num(key):
