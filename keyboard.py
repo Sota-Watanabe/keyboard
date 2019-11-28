@@ -33,16 +33,11 @@ def main():
             if event.type == KEYDOWN:  # キーを押したとき
                 # ESCキーならスクリプトを終了
                 if event.key == K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+                    long_sound = not long_sound
                 elif event.key == K_F1:
                     mode = 0
                 elif event.key == K_F2:
                     mode = 1
-                elif event.key == K_F3:
-                    long_sound = True
-                elif event.key == K_F4:
-                    long_sound = False
                 else:
                     octave = 0
                     if mode == 0:
