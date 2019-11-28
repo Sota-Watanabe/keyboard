@@ -11,12 +11,13 @@ DEFAULT_KEY = 48
 FILE_list = ["like-piano.json", "lowson-demo.json"]
 
 mode = 0
+long_sound = False
 outport = mido.open_output("Piaggero:Piaggero MIDI 1 20:0")
 print(outport)
 table_list = []
 
 def main():
-    global mode
+    global mode, long_sound
     pygame.init()    # Pygameを初期化
     screen = pygame.display.set_mode((400, 330))    # 画面を作成
     pygame.display.set_caption("keyboard event")    # タイトルを作成
@@ -38,6 +39,10 @@ def main():
                     mode = 0
                 elif event.key == K_F2:
                     mode = 1
+                elif event.key == K_F3:
+                    long_sound = True
+                elif event.key == K_F4:
+                    long_sound = False
                 else:
                     octave = 0
                     if mode == 0:
@@ -50,7 +55,7 @@ def main():
                         key = pygame.key.name(event.key)
                         if event.mod & pygame.KMOD_SHIFT:
                             key = key.upper()
-                    print(octave)
+                    # print(octave)
                     send_midi(key, octave, "down")
             elif event.type == KEYUP:
                 send_midi(key, octave, "up")
@@ -58,6 +63,7 @@ def main():
 
 
 def send_midi(key, octave, move):
+    # print(long_sound)
     num = key2num(key)
     # num = random.randrange(10, 60)
     if num == None:
@@ -66,7 +72,7 @@ def send_midi(key, octave, move):
     if move == "down":
         msg = Message('note_on', note=num, velocity=90)
         outport.send(msg)
-    elif move=="up" and mode == 0:
+    elif move=="up" and long_sound == False:
         msg = Message('note_off', note=num, velocity=0)
         outport.send(msg)
         msg = Message('note_on', note=num, velocity=0)
@@ -75,7 +81,7 @@ def send_midi(key, octave, move):
 
 def key2num(key):
     if key in table_list[mode]:
-        print(key)
+        # print(key)
         return table_list[mode][key]
 
 def set_table():
