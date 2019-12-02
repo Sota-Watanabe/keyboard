@@ -12,7 +12,8 @@ FILE_list = ["like-piano.json", "lowson-demo.json"]
 
 mode = 0
 long_sound = False
-outport = mido.open_output("Piaggero:Piaggero MIDI 1 20:0")
+#outport = mido.open_output("Piaggero:Piaggero MIDI 1 20:0")
+outport = mido.open_output("USB Device 0x499:0x2003:USB Device 0x499:0x2003 MIDI 1")
 print(outport)
 table_list = []
 
@@ -50,7 +51,7 @@ def main():
                         key = pygame.key.name(event.key)
                         if event.mod & pygame.KMOD_SHIFT:
                             key = key.upper()
-                    # print(octave)
+                    print(octave)
                     send_midi(key, octave, "down")
             elif event.type == KEYUP:
                 send_midi(key, octave, "up")
@@ -65,18 +66,23 @@ def send_midi(key, octave, move):
         return
     num = num + DEFAULT_KEY + 12 * octave
     if move == "down":
-        msg = Message('note_on', note=num, velocity=90)
+        msg = Message('note_on', note=num, velocity=90, time=50)
         outport.send(msg)
-    elif move=="up" and long_sound == False:
+        if long_sound == False:
+            msg = Message('note_off', note=num, velocity=90, time=50)
+            outport.send(msg)
+
+        print(msg)
+    elif move=="up" and long_sound == True:
         msg = Message('note_off', note=num, velocity=0)
         outport.send(msg)
         msg = Message('note_on', note=num, velocity=0)
         outport.send(msg)
-
+        print(msg)
 
 def key2num(key):
     if key in table_list[mode]:
-        # print(key)
+        print(key)
         return table_list[mode][key]
 
 def set_table():
